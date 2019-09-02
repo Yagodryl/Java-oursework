@@ -1,10 +1,15 @@
+using JavaAndReact.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace JavaAndReact
 {
@@ -20,7 +25,38 @@ namespace JavaAndReact
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+           
+            #region DbConnection
+            services.AddDbContext<EFDbContext>(options =>
+               options.UseNpgsql( "Server=localhost;Port=5432;Database=JavaReactDB;User Id=postgres;Password=Qwerty1-;"));
+            #endregion
+
+
+            #region Identity
+            services.AddIdentity<DbUser, DbRole>(options => options.Stores.MaxLengthForKeys = 128)
+               .AddEntityFrameworkStores<EFDbContext>()
+               .AddDefaultTokenProviders();
+
+            #endregion
+            //for working with files (Photos)
+            // services.AddScoped<IFileService, FileService>();
+
+
+            //for token
+            //var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is the secret phrase"));
+
+            //services.Configure<IdentityOptions>(options =>
+            //{
+            //    // Default Password settings.
+            //    options.Password.RequireNonAlphanumeric = false;
+            //    options.Password.RequiredUniqueChars = 0;
+            //});
+
+
+
+            //in the end
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
