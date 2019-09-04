@@ -22,7 +22,7 @@ namespace JavaAndReact.Entities
         public virtual DbSet<SellerProfile> Sellers { get; set; }
         public virtual DbSet<SellerStorage> SellerStorages { get; set; }
         public virtual DbSet<TypeOfProduct> TypeOfProducts { get; set; }
-        
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

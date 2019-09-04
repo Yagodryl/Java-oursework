@@ -25,11 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Client\Controllers\" />
-    <Folder Include="Areas\Client\ViewModels\" />
     <Folder Include="Areas\Seller\Controllers\" />
     <Folder Include="Areas\Seller\ViewModels\" />
-    <Folder Include="Areas\User\ViewModels\" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

@@ -17,6 +17,7 @@ namespace JavaAndReact.Entities
         public DateTime CreateDate { get; set; }
 
         public ICollection<Product> Products { get; set; }
+        public string Address { get; set; }
 
         [ForeignKey("Client")]
         public long ClientId { get; set; }

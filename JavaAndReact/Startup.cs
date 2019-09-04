@@ -1,4 +1,7 @@
+using JavaAndReact.BLL.Interfaces;
+using JavaAndReact.BLL.Services;
 using JavaAndReact.Entities;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -9,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Text;
 
 namespace JavaAndReact
@@ -25,12 +29,13 @@ namespace JavaAndReact
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
            
             #region DbConnection
             services.AddDbContext<EFDbContext>(options =>
                options.UseNpgsql( "Server=localhost;Port=5432;Database=JavaReactDB;User Id=postgres;Password=Qwerty1-;"));
             #endregion
-
 
             #region Identity
             services.AddIdentity<DbUser, DbRole>(options => options.Stores.MaxLengthForKeys = 128)
@@ -38,19 +43,47 @@ namespace JavaAndReact
                .AddDefaultTokenProviders();
 
             #endregion
+
+            #region Injections
+            services.AddTransient<IJWTTokenService, JWTTokenService>();
+
+
+
+            #endregion
+
+
             //for working with files (Photos)
             // services.AddScoped<IFileService, FileService>();
 
 
             //for token
-            //var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is the secret phrase"));
-
-            //services.Configure<IdentityOptions>(options =>
-            //{
-            //    // Default Password settings.
-            //    options.Password.RequireNonAlphanumeric = false;
-            //    options.Password.RequiredUniqueChars = 0;
-            //});
+            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SecretPhrase"));
+          //  var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration.GetValue<string>("SecretPhrase")));
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Default Password settings.
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 0;
+            });
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(cfg =>
+            {
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = signingKey,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    // set ClockSkew is zero
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
 
 
 
@@ -82,6 +115,9 @@ namespace JavaAndReact
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            SeederDB.SeedData(app.ApplicationServices, env, this.Configuration);
+
 
             app.UseMvc(routes =>
             {

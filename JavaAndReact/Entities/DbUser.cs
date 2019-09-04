@@ -14,5 +14,7 @@ namespace JavaAndReact.Entities
         public ICollection<DbUserRole> UserRoles { get; set; }
         public virtual ClientProfile Client { get; set; }
         public virtual SellerProfile Seller { get; set; }
+
+        public virtual RefreshToken RefreshToken { get; set; }
     }
 }
